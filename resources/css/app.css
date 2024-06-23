@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    @font-face {
+        font-family: "norse";
+        src: url(../../public/NorseBold-2Kge.otf) format("opentype");
+    }
+}
+
+@layer utilities {
+    .scrollbar::-webkit-scrollbar {
+        width: 10px;
+    }
+
+    .scrollbar::-webkit-scrollbar-track {
+        background: #000000;
+    }
+
+    .scrollbar::-webkit-scrollbar-thumb {
+        background: #58503f;
+        border-radius: 5px;
+    }
+}
