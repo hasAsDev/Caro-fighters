@@ -30,12 +30,17 @@ class BattleStart implements ShouldQueue
 
         // Tạo chiến trường
         $board = $this->createBoard(15, 15);
+        $now = gettimeofday()['sec'];
+        $end_timer = $now + 600;
         $battleground = Battleground::create([
             'fighter_X' => $this->fighter_ids['fighter_X'],
             'fighter_O' => $this->fighter_ids['fighter_O'],
             'winner' => -1,
             'turn' => "X",
-            'battle_record' => json_encode($board)
+            'battle_record' => json_encode($board),
+            'X_timer' => $end_timer,
+            'O_timer' => $end_timer,
+            'time_point' => $now,
         ]);
         // Kích hoạt sự kiện
         BattleStarted::dispatch($battleground->toArray());

@@ -17,6 +17,9 @@ return new class extends Migration {
             $table->integer('winner'); // -1:null 0:draw :winner
             $table->string('turn', length: 1); // "X" "O 
             $table->string('battle_record', length: 1000);
+            $table->integer('X_timer');
+            $table->integer('O_timer');
+            $table->integer('time_point');
         });
     }
 

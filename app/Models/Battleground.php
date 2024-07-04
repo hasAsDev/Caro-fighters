@@ -21,6 +21,9 @@ class Battleground extends Model
         "winner",
         "turn",
         "battle_record",
+        "X_timer",
+        "O_timer",
+        "time_point",
     ];
     public $timestamps = false;
 }

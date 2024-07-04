@@ -11,37 +11,42 @@ const battleground_id = document
 const fighter_id = document.body.getAttribute("fighter_id");
 
 export default function Game() {
-    const [battleground, setBattleground] = useState({
-        fighter_X: null,
-        fighter_O: null,
-        winner: -1,
-        turn: null,
-        battle_record: [
-            ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
-            ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
-            ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
-            ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
-            ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
-            ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
-            ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
-            ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
-            ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
-            ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
-            ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
-            ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
-            ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
-            ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
-            ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
-        ],
-    });
+    const [battle_record, setBattle_record] = useState([
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+    ]);
+
+    const [turn, setTurn] = useState("");
+    const [winner, setWinner] = useState(-1);
+
+    const [x_timer, setX_timer] = useState(0);
+    const [o_timer, setO_timer] = useState(0);
+    const [time_point, setTime_point] = useState(0);
 
     const [fighter_X, setFighter_X] = useState({
         name: "XXXXX",
+        elo: 0,
     });
 
     const [fighter_O, setFighter_O] = useState({
         name: "OOOOO",
+        elo: 0,
     });
+
+    const [win_XO, setWin_XO] = useState("count");
 
     const [play, setPlay] = useState(false);
 
@@ -50,9 +55,15 @@ export default function Game() {
             .get("/api/battleground/" + battleground_id)
             .then(function (res) {
                 // handle success
-                setBattleground(res.data.battleground);
+                setBattle_record(res.data.battleground.battle_record);
                 setFighter_X(res.data.fighter_X);
                 setFighter_O(res.data.fighter_O);
+                setWin_XO(res.data.win_XO);
+                setTurn(res.data.battleground.turn);
+                setWinner(res.data.battleground.winner);
+                setX_timer(res.data.battleground.X_timer);
+                setO_timer(res.data.battleground.O_timer);
+                setTime_point(res.data.battleground.time_point);
                 // Kiểm tra lượt
                 if (
                     (res.data.battleground.turn == "X" &&
@@ -85,14 +96,35 @@ export default function Game() {
 
     return (
         <>
-            <div className="flex flex-col tablet:flex-row justify-evenly items-center">
-                <Fighter fighter={fighter_X} XO={"X"} />
+            <div className="flex flex-col tablet:flex-row justify-evenly items-center py-10">
+                <Fighter
+                    player={play}
+                    setPlay={setPlay}
+                    XO={"X"}
+                    fighter={fighter_X}
+                    end_timer={x_timer}
+                    time_point={time_point}
+                    count={turn === "X"}
+                    winner={winner}
+                    win_XO={win_XO}
+                />
                 <Board
-                    battle_record={battleground.battle_record}
+                    battle_record={battle_record}
+                    setBattle_record={setBattle_record}
                     play={play}
                     setPlay={setPlay}
                 ></Board>
-                <Fighter fighter={fighter_O} XO={"O"} />
+                <Fighter
+                    player={play}
+                    setPlay={setPlay}
+                    XO={"O"}
+                    fighter={fighter_O}
+                    end_timer={o_timer}
+                    time_point={time_point}
+                    count={turn === "O"}
+                    winner={winner}
+                    win_XO={win_XO}
+                />
             </div>
         </>
     );

@@ -17,8 +17,7 @@
             <x-input-label for="name">
                 Name:
             </x-input-label>
-            <x-text-input id="name" name="name" type="text" class="block w-full"
-                :value="old('name', Auth::user()->name)" required autocomplete="name" />
+            <x-text-input id="name" name="name" type="text" class="block w-full" required />
             <x-input-error :messages="$errors->get('name')" />
         </div>
 

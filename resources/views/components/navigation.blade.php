@@ -1,27 +1,22 @@
-<nav x-data="{ open: false }" class="border-b-2 border-brown">
+<nav x-data="{ open: false }" class="border-b-2 border-brown bg-dark py-2">
     <!-- Primary Navigation Menu -->
     <div class="max-w-[1280px] mx-auto px-8">
         <div class="flex justify-between h-16">
-            <div class="flex">
-                <!-- Logo -->
-                <div class="flex items-center">
-                    <a href="{{ route('dashboard') }}">
-                        <x-logo class="block size-9" />
-                    </a>
-                </div>
+            <!-- Logo -->
+            <div class="flex items-center">
+                <a href="{{ route('welcome') }}">
+                    <x-logo class="block size-9" />
+                </a>
+            </div>
 
-                <!-- Navigation Links -->
-                <div class="hidden tablet:flex ml-8 items-center space-x-2">
-                    <x-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
-                    </x-link>
-                    <x-link :href="route('profile.edit')" :active="request()->routeIs('profile.edit')">
-                        {{ __('Profile') }}
-                    </x-link>
-                    <x-link :href="route('battle')" :active="request()->routeIs('battle')">
-                        {{ __('Battle') }}
-                    </x-link>
-                </div>
+            <!-- Navigation Links -->
+            <div class="hidden tablet:flex tablet:grow tablet:justify-center tablet:shrink items-center space-x-2">
+                <x-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                    {{ __('Dashboard') }}
+                </x-link>
+                <x-link :href="route('battle')" :active="request()->routeIs('battle')">
+                    {{ __('Battle') }}
+                </x-link>
             </div>
 
             <!-- Settings Dropdown -->

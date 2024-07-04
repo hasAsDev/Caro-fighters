@@ -18,7 +18,6 @@
             @csrf
             @method("PUT")
             <x-primary-button>Go to battle XO</x-primary-button>
-            <h1 class='inline-block pl-2'>Finding</h1>
         </form>
     </div>
     <div class="mt-4 px-6 py-6 rounded-primative bg-light">

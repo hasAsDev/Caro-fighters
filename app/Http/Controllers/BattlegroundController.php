@@ -20,15 +20,14 @@ class BattlegroundController extends Controller
 
     public function index(Request $request, string $battleground_id): Response
     {
-        // Lay du lieu battleground
+        // Lấy dữ liệu battleground
         $battleground = Battleground::find($battleground_id);
 
-        // Lay du lieu fighter_X
+        // Lấy dữ liệu fighter_X
         $fighter_X = User::find($battleground->fighter_X);
 
-        // Lay du lieu fighter_O
+        // Lấy dữ liệu fighter_O
         $fighter_O = User::find($battleground->fighter_O);
-
 
 
         // Response
@@ -39,13 +38,19 @@ class BattlegroundController extends Controller
                 "winner" => $battleground->winner,
                 "turn" => $battleground->turn,
                 "battle_record" => json_decode($battleground->battle_record),
+                "X_timer" => $battleground->X_timer,
+                "O_timer" => $battleground->O_timer,
+                "time_point" => $battleground->time_point,
             ],
             'fighter_X' => [
-                "name" => $fighter_X->name,
+                'name' => $fighter_X->name,
+                'elo' => $fighter_X->elo,
             ],
             'fighter_O' => [
-                "name" => $fighter_O->name,
+                'name' => $fighter_O->name,
+                'elo' => $fighter_O->elo,
             ],
+            'win_XO' => $battleground->winner == $battleground->fighter_X ? "X" : ($battleground->winner == $battleground->fighter_O ? "O" : ($battleground->winner == 0 ? "Draw" : "Count"))
         ], 200);
     }
 
@@ -57,21 +62,51 @@ class BattlegroundController extends Controller
         $battleground = Battleground::find($battleground_id);
 
         $new_battle_record = json_decode($battleground->battle_record);
-
+        $now = gettimeofday()['sec'];
         if ($fighter_id == $battleground->fighter_X && $battleground->turn == "X") {
+            //Tính giờ
+            $new_O_timer = $battleground->O_timer + ($now - $battleground->time_point) + 3;
+            $new_time_point = $now;
+
             $new_battle_record[floor($position / 15)][$position % 15] = "X";
 
             $new_winner = $this->calculateWinner($new_battle_record, $battleground->fighter_X, $battleground->fighter_O);
 
-            if ($new_winner >= 0) {
+            if ($new_winner > 0) {
                 $new_turn = "E";
+                // Tính điểm
+                $fighter_X = User::find($battleground->fighter_X);
+                $fighter_O = User::find($battleground->fighter_O);
+                [$new_X_elo, $new_O_elo] = $this->calculateElo($fighter_X->elo, $fighter_O->elo, 'X');
+                $fighter_X->elo = $new_X_elo;
+                $fighter_O->elo = $new_O_elo;
+
+                $fighter_X->save();
+                $fighter_O->save();
+
+            } elseif ($new_winner == 0) {
+                $new_turn = "E";
+                // Tính điểm
+                $fighter_X = User::find($battleground->fighter_X);
+                $fighter_O = User::find($battleground->fighter_O);
+                [$new_X_elo, $new_O_elo] = $this->calculateElo($fighter_X->elo, $fighter_O->elo, 'Draw');
+                $fighter_X->elo = $new_X_elo;
+                $fighter_O->elo = $new_O_elo;
+
+                $fighter_X->save();
+                $fighter_O->save();
             } else {
                 $new_turn = "O";
             }
 
+
             $battleground->battle_record = json_encode($new_battle_record);
             $battleground->winner = $new_winner;
             $battleground->turn = $new_turn;
+            $battleground->O_timer = $new_O_timer;
+            $battleground->time_point = $new_time_point;
+
+            // Lưu
             $battleground->save();
 
             //Kich hoat job
@@ -79,19 +114,48 @@ class BattlegroundController extends Controller
 
             return response($new_winner, 200);
         } elseif ($fighter_id == $battleground->fighter_O && $battleground->turn == "O") {
+            //Tính giờ
+            $new_X_timer = $battleground->X_timer + ($now - $battleground->time_point) + 3;
+            $new_time_point = $now;
+
             $new_battle_record[floor($position / 15)][$position % 15] = "O";
 
             $new_winner = $this->calculateWinner($new_battle_record, $battleground->fighter_X, $battleground->fighter_O);
 
-            if ($new_winner >= 0) {
+            if ($new_winner > 0) {
                 $new_turn = "E";
+                // Tính điểm
+                $fighter_X = User::find($battleground->fighter_X);
+                $fighter_O = User::find($battleground->fighter_O);
+                [$new_X_elo, $new_O_elo] = $this->calculateElo($fighter_X->elo, $fighter_O->elo, 'O');
+                $fighter_X->elo = $new_X_elo;
+                $fighter_O->elo = $new_O_elo;
+
+                $fighter_X->save();
+                $fighter_O->save();
+            } elseif ($new_winner == 0) {
+                $new_turn = "E";
+                // Tính điểm
+                $fighter_X = User::find($battleground->fighter_X);
+                $fighter_O = User::find($battleground->fighter_O);
+                [$new_X_elo, $new_O_elo] = $this->calculateElo($fighter_X->elo, $fighter_O->elo, 'Draw');
+                $fighter_X->elo = $new_X_elo;
+                $fighter_O->elo = $new_O_elo;
+
+                $fighter_X->save();
+                $fighter_O->save();
             } else {
                 $new_turn = "X";
             }
 
+
             $battleground->battle_record = json_encode($new_battle_record);
             $battleground->winner = $new_winner;
             $battleground->turn = $new_turn;
+            $battleground->X_timer = $new_X_timer;
+            $battleground->time_point = $new_time_point;
+
+            // Lưu
             $battleground->save();
 
             //Kich hoat job
@@ -102,6 +166,52 @@ class BattlegroundController extends Controller
             return response($new_battle_record, 200);
         }
 
+    }
+
+    public function timeout(Request $request, string $battleground_id): Response
+    {
+        $battleground = Battleground::find($battleground_id);
+        $now = gettimeofday()['sec'];
+
+        $fighter_id = (int) $request->fighter_id;
+        if ($fighter_id === Auth::id() && $fighter_id === $battleground->fighter_X && $battleground->turn === "X") {
+            $battleground->turn = "E";
+            $battleground->winner = $battleground->fighter_O;
+            $battleground->O_timer = $battleground->O_timer + ($now - $battleground->time_point);
+            $battleground->time_point = $now;
+            $battleground->save();
+            // Tính điểm
+            $fighter_X = User::find($battleground->fighter_X);
+            $fighter_O = User::find($battleground->fighter_O);
+            [$new_X_elo, $new_O_elo] = $this->calculateElo($fighter_X->elo, $fighter_O->elo, 'O');
+            $fighter_X->elo = $new_X_elo;
+            $fighter_O->elo = $new_O_elo;
+
+            $fighter_X->save();
+            $fighter_O->save();
+
+            BattleUpdate::dispatch(["battleground_id" => $battleground_id]);
+
+        } elseif ($fighter_id === Auth::id() && $fighter_id === $battleground->fighter_O && $battleground->turn === "O") {
+            $battleground->turn = "E";
+            $battleground->winner = $battleground->fighter_X;
+            $battleground->X_timer = $battleground->X_timer + ($now - $battleground->time_point);
+            $battleground->time_point = $now;
+            $battleground->save();
+            // Tính điểm
+            $fighter_X = User::find($battleground->fighter_X);
+            $fighter_O = User::find($battleground->fighter_O);
+            [$new_X_elo, $new_O_elo] = $this->calculateElo($fighter_X->elo, $fighter_O->elo, 'X');
+            $fighter_X->elo = $new_X_elo;
+            $fighter_O->elo = $new_O_elo;
+
+            $fighter_X->save();
+            $fighter_O->save();
+
+            BattleUpdate::dispatch(["battleground_id" => $battleground_id]);
+        }
+
+        return response($battleground->winner, 200);
     }
 
     protected function calculateWinner(array $battle_record, int $fighter_X, int $fighter_O): int
@@ -167,5 +277,28 @@ class BattlegroundController extends Controller
         }
 
         return -1;
+    }
+
+    protected function calculateElo(int $X_elo, int $O_elo, string $win_fighter): array
+    {
+        $k = 20;
+        // Xác suất thắng của X
+        $PX = 1 / (1 + (pow(10, ($O_elo - $X_elo) / 400)));
+        $PO = 1 / (1 + (pow(10, ($X_elo - $O_elo) / 400)));
+
+        if ($win_fighter === "X") {
+            $X_elo = ceil($X_elo + $k * (1 - $PX));
+            $O_elo = ceil($O_elo + $k * (0 - $PO));
+
+        } elseif ($win_fighter === "O") {
+            $X_elo = ceil($X_elo + $k * (0 - $PX));
+            $O_elo = ceil($O_elo + $k * (1 - $PO));
+
+        } elseif ($win_fighter === "Draw") {
+            $X_elo = ceil($X_elo + $k * (0.5 - $PX));
+            $O_elo = ceil($O_elo + $k * (0.5 - $PO));
+        }
+
+        return [(int) $X_elo, (int) $O_elo];
     }
 }

@@ -15,12 +15,18 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'elo',
     ];
 
     // Ẩn thuộc tính khi truy xuất
     protected $hidden = [
         'password',
         'remember_token',
+    ];
+
+    // Giá trị mặc định
+    protected $attributes = [
+        'elo' => 1000,
     ];
 
     // Mật khẩu sẽ được hash khi truy xuất để tham chiếu

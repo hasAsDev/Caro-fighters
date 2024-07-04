@@ -14,7 +14,7 @@ export default function Square({ value, position, play, setPlay }) {
                 position: position,
             })
             .then(function (response) {
-                console.log(response);
+                // console.log(response);
             })
             .catch(function (error) {
                 console.log(error);
@@ -33,32 +33,36 @@ export default function Square({ value, position, play, setPlay }) {
             {value == "X" ? (
                 <svg
                     className="size-4 laptop:size-8"
+                    width="360"
+                    height="360"
                     viewBox="0 0 360 360"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
                 >
                     <rect
-                        x="49.2132"
-                        y="332.056"
-                        width="30"
+                        x="63.4975"
+                        y="346.34"
+                        width="70"
                         height="400"
                         rx="5"
-                        transform="rotate(-135 49.2132 332.056)"
+                        transform="rotate(-135 63.4975 346.34)"
                         fill="#8B322C"
                     />
                     <rect
-                        x="28"
-                        y="49.2132"
-                        width="30"
+                        x="14"
+                        y="63.4975"
+                        width="70"
                         height="400"
                         rx="5"
-                        transform="rotate(-45 28 49.2132)"
+                        transform="rotate(-45 14 63.4975)"
                         fill="#8B322C"
                     />
                 </svg>
             ) : value == "O" ? (
                 <svg
                     className="size-4 laptop:size-8"
+                    width="360"
+                    height="360"
                     viewBox="0 0 360 360"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
@@ -66,9 +70,9 @@ export default function Square({ value, position, play, setPlay }) {
                     <circle
                         cx="180"
                         cy="180"
-                        r="110"
-                        stroke="#FFE8B5"
-                        strokeWidth="30"
+                        r="125"
+                        stroke="#FEFFD2"
+                        strokeWidth="70"
                     />
                 </svg>
             ) : (

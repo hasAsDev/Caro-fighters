@@ -36,9 +36,15 @@ export default {
                     DEFAULT: "#58503f",
                     active: "#ffe8b5",
                 },
-                red: "#8B322C",
+                red: {
+                    DEFAULT: "#8B322C",
+                    blood: "#ef4444",
+                },
                 dark: "#000",
                 light: "#999",
+                orange: "#ee9746",
+                green: "#00ff85",
+                purple: "#db00ff",
             },
             borderRadius: {
                 primative: "5px",

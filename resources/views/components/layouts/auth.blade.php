@@ -19,13 +19,14 @@
     @vite(['resources/css/app.css', 'resources/js/app.js',])
 </head>
 
-<body class="bg-dark scrollbar" fighter_id="{{Auth::id()}}">
+<body class="bg-[#191919] scrollbar" fighter_id="{{Auth::id()}}">
     <header>
         @include('components.navigation')
     </header>
     <main class="max-w-[1280px] mx-auto">
         {{ $slot }}
     </main>
+    <footer class="min-h-12"></footer>
 </body>
 
 </html>

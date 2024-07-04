@@ -14,8 +14,19 @@ class ProfileController extends Controller
     // Hiển thị trang sửa thông tin người dùng
     public function edit(): View
     {
+        $tops = User::orderBy('elo', 'desc')->orderBy('created_at', 'asc')->get();
+        $arr = $tops->toArray();
+        $top = -1;
+        foreach ($arr as $key => $value) {
+            if ($value['id'] == Auth::user()->id) {
+                $top = $key + 1;
+                break;
+            }
+        }
+        ;
         return view('profile.edit', [
             'user' => Auth::user(),
+            'top' => $top,
         ]);
     }
 
@@ -43,7 +54,6 @@ class ProfileController extends Controller
         $request->validateWithBag('userDeletion', [
             'password' => ['required', 'current_password'],
         ]);
-        dd($request);
 
         // Lấy thông tin người dùng
         $user = $request->user();
